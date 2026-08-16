@@ -72,7 +72,7 @@
     }
 
     .page-shell {
-      width: min(1120px, calc(100% - 32px));
+      width: min(780px, calc(100% - 32px));
       margin: 0 auto;
       padding: 26px 0 34px;
     }
@@ -115,14 +115,30 @@
     }
 
     .experience {
-      display: grid;
-      min-height: 690px;
+      display: flex;
+      width: 100%;
+      flex-direction: column;
       overflow: hidden;
       border: 1px solid rgb(68 57 46 / 9%);
       border-radius: var(--radius-xl);
       background: var(--surface);
       box-shadow: var(--shadow);
-      grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.32fr);
+    }
+
+    /* 📌 The illustration, selected path, questions, and buttons now form one changing window. */
+    .experience.is-changing {
+      animation: change-window 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes change-window {
+      from {
+        opacity: 0.88;
+        transform: translateY(5px) scale(0.998);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     /* 📌 The dark panel keeps the visitor's path visible at every level. */
@@ -131,8 +147,9 @@
       display: flex;
       min-width: 0;
       flex-direction: column;
-      padding: 34px;
+      padding: 28px 32px 24px;
       overflow: hidden;
+      border-bottom: 1px solid rgb(255 255 255 / 9%);
       color: var(--white);
       background:
         radial-gradient(circle at 75% 8%, rgb(166 184 168 / 22%) 0 5rem, transparent 15rem),
@@ -168,13 +185,13 @@
     .visual-art {
       position: relative;
       display: grid;
-      min-height: 245px;
-      margin: 22px 0 18px;
+      min-height: 215px;
+      margin: 5px 0 12px;
       place-items: center;
     }
 
     .visual-art svg {
-      width: min(100%, 310px);
+      width: min(62%, 260px);
       height: auto;
       overflow: visible;
     }
@@ -253,8 +270,8 @@
     .path-card {
       position: relative;
       z-index: 1;
-      margin-top: auto;
-      padding: 18px;
+      margin-top: 8px;
+      padding: 15px 16px;
       border: 1px solid rgb(255 255 255 / 12%);
       border-radius: var(--radius-lg);
       background: rgb(255 255 255 / 6%);
@@ -281,26 +298,26 @@
 
     .path-list {
       display: grid;
-      gap: 0;
+      gap: 6px;
       margin: 0;
       padding: 0;
       list-style: none;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
     .path-item {
       position: relative;
-      display: grid;
-      min-height: 43px;
-      grid-template-columns: 26px minmax(0, 1fr);
-      gap: 10px;
+      display: block;
+      min-width: 0;
     }
 
     .path-item:not(:last-child)::after {
       position: absolute;
-      top: 24px;
-      bottom: -1px;
-      left: 12px;
-      width: 1px;
+      z-index: 0;
+      top: 12px;
+      right: -6px;
+      left: 24px;
+      height: 1px;
       background: rgb(255 255 255 / 17%);
       content: "";
     }
@@ -333,7 +350,7 @@
 
     .path-text {
       min-width: 0;
-      padding: 1px 0 8px;
+      padding: 6px 0 0;
     }
 
     .path-text small,
@@ -345,15 +362,15 @@
     }
 
     .path-text small {
-      color: rgb(255 255 255 / 48%);
-      font-size: 0.68rem;
+      color: rgb(255 255 255 / 45%);
+      font-size: 0.63rem;
       line-height: 1.2;
     }
 
     .path-text strong {
       margin-top: 2px;
       color: rgb(255 255 255 / 90%);
-      font-size: 0.78rem;
+      font-size: 0.69rem;
       font-weight: 650;
     }
 
@@ -375,12 +392,13 @@
       white-space: nowrap;
     }
 
-    /* 📌 The question panel is the only content area that changes between levels. */
+    /* 📌 The buttons and editable selections live inside the same card body as the visual. */
     .question-panel {
       display: flex;
+      min-height: 520px;
       min-width: 0;
       flex-direction: column;
-      padding: clamp(28px, 5vw, 58px);
+      padding: 32px 38px 34px;
       background: var(--surface);
     }
 
@@ -390,7 +408,7 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 6px;
-      margin-bottom: clamp(28px, 5vw, 54px);
+      margin-bottom: 28px;
     }
 
     .crumb {
@@ -1112,6 +1130,7 @@
       ];
 
       const root = document.getElementById("path-finder"); // Main app
+      const changingWindow = root.querySelector(".experience"); // Unified changing window
       const questionView = document.getElementById("question-view"); // Changing question area
       const breadcrumb = document.getElementById("breadcrumb"); // Editable breadcrumbs
       const pathList = document.getElementById("path-list"); // Five level path
@@ -1448,6 +1467,19 @@
           : levels[path.length - 1] + " selected · continue to " + levels[path.length];
       }
 
+      function animateWindow() {
+        if (!changingWindow) {
+          return;
+        }
+
+        // ❓ What does this expression do? Why do we need it?
+        // 👉 It removes and reapplies one animation class on separate browser frames so the complete card visibly refreshes after every selection.
+        changingWindow.classList.remove("is-changing");
+        window.requestAnimationFrame(function () {
+          changingWindow.classList.add("is-changing");
+        });
+      }
+
       function render() {
         const isComplete = path.length === levels.length; // Completion state
 
@@ -1468,6 +1500,8 @@
         } else {
           renderQuestion();
         }
+
+        animateWindow();
       }
 
       function chooseOption(optionId) {
