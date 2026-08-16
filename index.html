@@ -39,6 +39,11 @@
       box-sizing: border-box;
     }
 
+    /* 📌 Keep completed or inactive interface regions fully out of the layout. */
+    [hidden] {
+      display: none !important;
+    }
+
     html {
       min-width: 320px;
       background: var(--page);
