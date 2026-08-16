@@ -117,6 +117,10 @@
     .experience {
       display: flex;
       width: 100%;
+      height: calc(100vh - 98px);
+      height: calc(100svh - 98px);
+      max-height: 900px;
+      min-height: 0;
       flex-direction: column;
       overflow: hidden;
       scroll-margin-top: 10px;
@@ -146,10 +150,16 @@
     .visual-panel {
       position: relative;
       display: flex;
+      height: 100%;
+      min-height: 0;
       min-width: 0;
       flex-direction: column;
       padding: 28px 32px 24px;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-color: rgb(255 255 255 / 24%) transparent;
+      scrollbar-width: thin;
       color: var(--white);
       background:
         radial-gradient(circle at 75% 8%, rgb(166 184 168 / 22%) 0 5rem, transparent 15rem),
@@ -808,6 +818,7 @@
       👉 The outer frame uses the stable viewport height, while only its inner content can scroll on unusually short screens.
       */
       .experience {
+        height: calc(100vh - 66px);
         height: calc(100svh - 66px);
         min-height: 0;
         scroll-margin-top: 6px;
