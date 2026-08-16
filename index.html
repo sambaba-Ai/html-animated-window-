@@ -1,1333 +1,1534 @@
 <!doctype html>
-<html lang="en" data-visualize-standalone>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="referrer" content="no-referrer">
-<title>Landing Image Path Demo</title>
-<style>:root {
-  color-scheme: light dark;
-  background-color: transparent !important;
-
-  /* Agent-facing contract; keep in sync with SKILL.md. */
-  --background: var(
-    --main-surface-primary,
-    light-dark(rgb(255 255 255), rgb(24 24 24))
-  );
-  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
-  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
-  --card-foreground: var(--foreground);
-  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
-  --popover-foreground: var(--foreground);
-  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
-  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
-  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
-  --secondary-foreground: var(--foreground);
-  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
-  --muted-foreground: light-dark(
-    rgb(26 28 31 / 49.4%),
-    rgb(255 255 255 / 49.8%)
-  );
-  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
-  --accent-foreground: var(--primary);
-  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
-  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
-  --input: light-dark(
-    rgb(26 28 31 / 11.8%),
-    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
-  );
-  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
-  --font-size-base: 14px;
-  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
-  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
-
-  /* Internal implementation variables; not part of the agent contract. */
-  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
-  --font-mono:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
-    monospace;
-  --font-size-normal: max(11px, var(--font-size-base));
-  --font-size-tooltip: calc(var(--font-size-base) - 1px);
-  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
-  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
-  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
-  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
-  --font-weight-normal: 430;
-  --font-weight-medium: 500;
-  --line-height-normal: calc(var(--font-size-normal) * 1.5);
-  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
-  --line-height-small: calc(var(--font-size-small) + 4px);
-  --radius: 10px;
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-2xl: calc(var(--radius) * 1.6);
-  --radius-full: 9999px;
-  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
-  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
-
-  /* Legacy aliases; not part of the current agent contract. */
-  --viz-bg: transparent;
-  --viz-panel: var(--card);
-  --viz-border: var(--border);
-  --viz-text: var(--foreground);
-  --viz-muted: var(--muted-foreground);
-  --viz-accent: var(--primary);
-  --viz-accent-text: var(--primary-foreground);
-  --viz-accent-bg: var(--accent);
-  --viz-font-size: var(--font-size-base);
-  --viz-warning: var(--destructive);
-  --color-background-primary: var(--background);
-  --color-text-primary: var(--foreground);
-  --color-border-secondary: var(--border);
-}
-
-:root[data-visualize-standalone] {
-  background-color: var(--background) !important;
-}
-
-/* Generic mobile code-block hosts provide light/dark mode but no series palette.
-   AppBlock hosts set all six variables themselves. */
-:root:not([data-app-block-surface]) {
-  --viz-series-1: var(--primary);
-  --viz-series-2: light-dark(#f3883b, #f59a56);
-  --viz-series-3: light-dark(#5dc977, #74d58b);
-  --viz-series-4: light-dark(#eb77b1, #f08fc0);
-  --viz-series-5: light-dark(#9b79ec, #aa91ef);
-  --viz-series-6: light-dark(#3ab9b1, #5acbc2);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html > body {
-  margin: 0;
-  padding: 5px;
-  color: var(--foreground);
-  background: transparent !important;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-normal);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
-}
-
-:root:not([data-app-block-surface]) > body {
-  padding: 12px;
-}
-
-a {
-  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
-  cursor: pointer;
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  text-underline-offset: 2px;
-}
-
-a:is(:hover, :focus-visible) {
-  text-decoration-line: underline;
-  text-decoration-style: dashed;
-  text-decoration-thickness: 0.5px;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  margin-block: 0;
-}
-
-h1 {
-  font-size: var(--font-size-h1);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.25;
-}
-
-h2 {
-  font-size: var(--font-size-h2);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.25;
-}
-
-h3,
-h4,
-h5,
-h6 {
-  font-size: var(--font-size-h3);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.3;
-}
-
-b,
-strong,
-th {
-  font-weight: var(--font-weight-medium);
-}
-
-code:not(pre code) {
-  display: inline;
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.92em;
-  overflow-wrap: anywhere;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  word-break: break-word;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  color: var(--foreground);
-  font: inherit;
-  text-align: start;
-}
-
-.table :is(th, td) {
-  padding-block: 10px;
-  padding-inline: 0 24px;
-  overflow-wrap: anywhere;
-  border-bottom: 1px solid var(--border);
-  text-align: start;
-  vertical-align: top;
-}
-
-.table-responsive > .table :is(th, td) {
-  overflow-wrap: break-word;
-}
-
-.table :is(th, td):last-child {
-  padding-inline-end: 0;
-}
-
-.table :is(caption, thead th) {
-  font-weight: 600;
-}
-
-.table thead th {
-  padding-block: 8px;
-  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
-}
-
-.table tbody tr:last-child :is(th, td) {
-  border-bottom: 0;
-}
-
-.table.table-sm :is(th, td) {
-  padding-block: 6px;
-}
-
-.table.table-sm :is(th, td):not(:last-child) {
-  padding-inline-end: 16px;
-}
-
-.table :is(.text-end, [align="right"]) {
-  text-align: end;
-  font-variant-numeric: tabular-nums;
-}
-
-.table :is(.text-center, [align="center"]) {
-  text-align: center;
-}
-
-.table .text-nowrap {
-  white-space: nowrap;
-}
-
-#widget {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  padding: 0;
-  background: transparent !important;
-}
-
-.card {
-  min-width: 0;
-  padding: 12px;
-  overflow: hidden;
-  overflow-wrap: break-word;
-  border-radius: var(--radius-2xl);
-  color: var(--card-foreground);
-  background: var(--card);
-}
-
-#widget > :not(.card) {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.tooltip {
-  position: fixed;
-  z-index: 50;
-  top: 0;
-  left: 0;
-  width: max-content;
-  max-width: min(
-    20rem,
-    var(--tooltip-available-width, calc(100vw - 10px)),
-    calc(100vw - 10px)
-  );
-  max-height: min(
-    var(--tooltip-available-height, calc(100vh - 10px)),
-    calc(100vh - 10px)
-  );
-  padding: 4px 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  color: var(--popover-foreground);
-  background: var(--popover);
-  box-shadow: none;
-  font-size: var(--font-size-tooltip);
-  line-height: var(--line-height-tooltip);
-  overflow-wrap: break-word;
-  white-space: normal;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* The bundled tooltip runtime owns [data-tooltip]. AppBlock's CSS-only
-   pseudo-tooltip can widen dense grids even while hidden. */
-main [data-tooltip]::after {
-  content: none;
-}
-
-.viz-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
-  gap: 10px;
-}
-
-.viz-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.viz-stat-value {
-  font-size: var(--font-size-h2);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.25;
-}
-
-.viz-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.viz-badge {
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  color: var(--accent-foreground);
-  background: var(--accent);
-  font-weight: var(--font-weight-medium);
-}
-
-small,
-.text-small,
-.viz-badge {
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
-}
-
-.text-muted {
-  color: var(--muted-foreground);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.viz-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.viz-controls > .form-label {
-  display: grid;
-  min-width: min(100%, 260px);
-  flex: 1 1 280px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 2px 12px;
-  margin-bottom: 0;
-}
-
-.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
-  grid-column: 1 / -1;
-}
-
-.btn,
-.form-check-input,
-.form-control,
-.form-range,
-.form-select {
-  font: inherit;
-}
-
-.btn {
-  appearance: button;
-  display: inline-flex;
-  inline-size: fit-content;
-  max-inline-size: 100%;
-  min-height: 28px;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin: 0;
-  padding: 0 8px;
-  -webkit-app-region: no-drag;
-  border: 1px solid var(--input);
-  border-radius: var(--radius-lg);
-  color: var(--secondary-foreground);
-  background: var(--secondary);
-  cursor: var(--cursor-interaction, pointer);
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  user-select: none;
-  -webkit-font-smoothing: antialiased;
-}
-
-.btn:is(.btn-block, .viz-tile) {
-  inline-size: 100%;
-}
-
-.btn.viz-tile {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
-a.btn {
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn:not(:disabled):hover {
-  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
-}
-
-.btn-primary {
-  border-color: transparent;
-  color: var(--interactive-label-primary-default, var(--primary-foreground));
-  background: var(--interactive-bg-primary-default, var(--foreground));
-  background-clip: padding-box;
-}
-
-.btn-primary .text-muted {
-  color: color-mix(
-    in srgb,
-    var(--interactive-label-primary-default, var(--primary-foreground)) 50%,
-    transparent
-  );
-}
-
-.btn-primary:not(:disabled):hover {
-  background: color-mix(in srgb, var(--foreground) 80%, transparent);
-  background-clip: padding-box;
-}
-
-.btn-ghost {
-  border-color: transparent;
-  color: var(--muted-foreground);
-  background: transparent;
-}
-
-.btn-ghost:not(:disabled):hover {
-  color: var(--foreground);
-  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
-}
-
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-[data-lucide] {
-  stroke-width: 1.6;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--foreground);
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  min-height: 28px;
-  padding: 0 8px;
-  outline: none;
-  border: 1px solid var(--input);
-  border-radius: var(--radius-lg);
-  color: var(--foreground);
-  background: var(--secondary);
-}
-
-.form-control::placeholder {
-  color: var(--muted-foreground);
-}
-
-.form-control[type="file"] {
-  padding: 0;
-  overflow: hidden;
-  cursor: var(--cursor-interaction, pointer);
-}
-
-.form-control[type="file"]::file-selector-button {
-  min-height: 26px;
-  margin-right: 8px;
-  padding: 0 8px;
-  border: 0;
-  border-right: 1px solid var(--input);
-  color: var(--secondary-foreground);
-  background: var(--secondary);
-  cursor: inherit;
-  font: inherit;
-}
-
-.form-control[type="file"]:not(:disabled):hover::file-selector-button {
-  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
-}
-
-.form-control-color[type="color"] {
-  width: 40px;
-  height: 28px;
-  padding: 3px;
-  cursor: var(--cursor-interaction, pointer);
-}
-
-.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.form-control-color[type="color"]::-webkit-color-swatch {
-  border: 0;
-  border-radius: calc(var(--radius-lg) - 4px);
-}
-
-textarea.form-control {
-  height: auto;
-  min-height: 72px;
-  padding: 8px 10px;
-  resize: vertical;
-}
-
-.form-control:focus-visible {
-  border-color: var(--ring);
-  box-shadow: inset 0 0 0 1px var(--ring);
-}
-
-.form-control:disabled,
-.form-select:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.form-select {
-  appearance: none;
-  display: block;
-  width: 100%;
-  min-height: 28px;
-  margin: 0;
-  padding: 0 32px 0 8px;
-  outline: none;
-  border: 1px solid var(--input);
-  border-radius: var(--radius-lg);
-  color: var(--foreground);
-  background-color: var(--secondary);
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
-    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
-  background-position:
-    calc(100% - 14px) 50%,
-    calc(100% - 10px) 50%;
-  background-repeat: no-repeat;
-  background-size: 4px 4px;
-  cursor: var(--cursor-interaction, default);
-}
-
-.form-select:not(:disabled):hover {
-  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
-}
-
-.form-select:focus-visible {
-  border-color: var(--ring);
-  box-shadow: inset 0 0 0 1px var(--ring);
-}
-
-.form-check {
-  display: flex;
-  min-height: 20px;
-  align-items: center;
-  gap: 6px;
-}
-
-.form-check-input {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  flex: 0 0 auto;
-  margin: 0;
-  border: 1px solid var(--input);
-  color: var(--primary-foreground);
-  background-color: transparent;
-  cursor: var(--cursor-interaction, default);
-  transition:
-    background-color 150ms,
-    border-color 150ms,
-    box-shadow 150ms;
-}
-
-.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
-  border-color: var(--input);
-  border-radius: var(--radius-sm);
-  background-color: var(--secondary);
-  box-shadow: var(--shadow-sm);
-}
-
-.form-check:not(.form-switch)
-  .form-check-input:not(:disabled):not(:checked):hover {
-  background-color: var(--card);
-}
-
-.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
-  border-color: var(--primary);
-  background-color: var(--primary);
-}
-
-.form-check:not(.form-switch)
-  .form-check-input[type="checkbox"]:checked::before {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--primary-foreground);
-  content: "";
-  mask: var(--checkmark-image) center / 12px 12px no-repeat;
-}
-
-.form-check-input[type="radio"] {
-  width: 14px;
-  height: 14px;
-  border-radius: var(--radius-full);
-}
-
-.form-check-input[type="radio"]:checked {
-  border: 2px solid var(--primary);
-  background:
-    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
-    var(--primary);
-}
-
-.form-check:not(.form-switch) .form-check-input:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
-.form-check:not(.form-switch) .form-check-input:disabled {
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
-  cursor: not-allowed;
-}
-
-.form-switch .form-check-input:disabled,
-.form-switch .form-check-input:disabled + .form-check-label {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.form-check-label {
-  color: var(--foreground);
-  cursor: var(--cursor-interaction, default);
-}
-
-.form-switch .form-check-input {
-  position: relative;
-  width: 32px;
-  height: 20px;
-  border: 0;
-  border-radius: var(--radius-full);
-  background: var(--muted);
-  box-shadow: none;
-  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.form-switch .form-check-input::before {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  box-sizing: border-box;
-  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
-  border-radius: var(--radius-full);
-  background: light-dark(var(--primary-foreground), var(--foreground));
-  box-shadow: var(--shadow-sm);
-  content: "";
-  transform: translate(2px, -50%);
-  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.form-switch .form-check-input:checked {
-  background: var(--primary);
-}
-
-.form-switch .form-check-input:checked::before {
-  transform: translate(14px, -50%);
-}
-
-.form-switch .form-check-input:focus-visible {
-  box-shadow: 0 0 0 2px var(--ring);
-}
-
-.form-range {
-  appearance: none;
-  display: block;
-  width: 100%;
-  height: 28px;
-  flex: 1;
-  margin: 0;
-  padding: 0;
-  outline: none;
-  border: 0;
-  accent-color: var(--primary);
-  background: linear-gradient(
-      color-mix(in srgb, var(--foreground) 7%, transparent),
-      color-mix(in srgb, var(--foreground) 7%, transparent)
-    )
-    center / 100% 2px no-repeat;
-}
-
-.form-range::-webkit-slider-runnable-track {
-  height: 28px;
-  background: transparent;
-}
-
-.form-range::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  margin-top: 4px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background: light-dark(var(--primary-foreground), var(--foreground));
-}
-
-.form-range:focus-visible::-webkit-slider-thumb {
-  border-color: var(--ring);
-  box-shadow: inset 0 0 0 1px var(--ring);
-}
-
-.form-range::-moz-range-track {
-  height: 28px;
-  background: transparent;
-}
-
-.form-range::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background: light-dark(var(--primary-foreground), var(--foreground));
-}
-
-.form-range:focus-visible::-moz-range-thumb {
-  border-color: var(--ring);
-  box-shadow: inset 0 0 0 1px var(--ring);
-}
-
-.form-range:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.btn:not(.btn-primary, .viz-tile):is(
-    [aria-pressed="true"],
-    [aria-selected="true"],
-    .is-selected
-  ) {
-  border-color: var(--primary);
-  color: var(--primary-foreground);
-  background: var(--primary);
-}
-
-.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary);
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
-svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-#widget > svg {
-  width: 100%;
-}
-
-.text-warning,
-.text-destructive {
-  color: var(--destructive);
-}
-</style>
-</head>
-<body>
-<!--
-📌 Purpose: Demonstrate image-based landing-page navigation without reloading the page.
-❓ Business Question: Can visitors press different buttons and see different visual paths on one landing page?
-👉 Yes. Each button reveals the matching image screen while preserving the surrounding landing page.
-🧠 Logic Summary: Show the opening screen, listen for a button press, hide the current screen, reveal the selected screen, and animate the transition.
--->
-<div id="landing-image-demo" aria-live="polite">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A five-level interactive consultation path for face, skin, and body interests.">
+  <title>Consultation Path Finder</title>
+
+  <!--
+  📌 Purpose: Present a polished, mobile-first five-level branching questionnaire on one webpage.
+  ❓ Business Question: How can a visitor identify what they want while always seeing the choices that brought them there?
+  👉 Answer: Each answer advances the questionnaire, while breadcrumbs and a folder-style path preserve every earlier selection.
+  🧠 Logic Summary: Render the current question from a decision tree, record one choice per level, allow any earlier level to be edited, and finish with a complete consultation-path summary.
+  -->
   <style>
-    #landing-image-demo {
-      width: 100%;
-      color: var(--foreground);
+    :root {
+      color-scheme: light;
+      --page: #f3eee5;
+      --surface: #fffdf9;
+      --surface-soft: #f7f1e8;
+      --ink: #202320;
+      --muted: #6c706b;
+      --line: #e3dbcf;
+      --accent: #b85f47;
+      --accent-dark: #914631;
+      --accent-soft: #f5dfd7;
+      --forest: #26302b;
+      --forest-soft: #344038;
+      --sage: #a6b8a8;
+      --white: #ffffff;
+      --shadow: 0 24px 70px rgb(56 45 34 / 12%);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
 
-    #landing-image-demo .demo-screen[hidden] {
-      display: none;
+    * {
+      box-sizing: border-box;
     }
 
-    #landing-image-demo .demo-screen.is-active {
-      animation: landing-demo-enter 420ms ease both;
+    html {
+      min-width: 320px;
+      background: var(--page);
+      scroll-behavior: smooth;
     }
 
-    #landing-image-demo .demo-image {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 2%, rgb(255 255 255 / 92%) 0 9rem, transparent 24rem),
+        radial-gradient(circle at 96% 96%, rgb(184 95 71 / 10%) 0 8rem, transparent 27rem),
+        var(--page);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgb(184 95 71 / 35%);
+      outline-offset: 3px;
+    }
+
+    .page-shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 34px;
+    }
+
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 760;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--white);
+      background: var(--forest);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.08rem;
+      letter-spacing: 0;
+    }
+
+    .branch-count {
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .experience {
+      display: grid;
+      min-height: 690px;
       overflow: hidden;
-      color: var(--foreground);
-      background: var(--muted);
+      border: 1px solid rgb(68 57 46 / 9%);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.32fr);
     }
 
-    #landing-image-demo .demo-copy {
-      margin-top: 0.9rem;
+    /* 📌 The dark panel keeps the visitor's path visible at every level. */
+    .visual-panel {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      padding: 34px;
+      overflow: hidden;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 75% 8%, rgb(166 184 168 / 22%) 0 5rem, transparent 15rem),
+        linear-gradient(145deg, var(--forest-soft), var(--forest));
     }
 
-    #landing-image-demo .demo-copy h3,
-    #landing-image-demo .demo-copy p {
-      margin-top: 0;
+    .visual-panel::after {
+      position: absolute;
+      right: -90px;
+      bottom: -120px;
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 50%;
+      content: "";
     }
 
-    #landing-image-demo .demo-copy p {
-      margin-bottom: 0;
-      color: var(--muted-foreground);
+    .level-badge {
+      position: relative;
+      z-index: 1;
+      align-self: flex-start;
+      padding: 7px 11px;
+      border: 1px solid rgb(255 255 255 / 15%);
+      border-radius: 999px;
+      color: rgb(255 255 255 / 72%);
+      background: rgb(255 255 255 / 6%);
+      font-size: 0.72rem;
+      font-weight: 760;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    #landing-image-demo .viz-controls {
-      margin-top: 0.9rem;
+    .visual-art {
+      position: relative;
+      display: grid;
+      min-height: 245px;
+      margin: 22px 0 18px;
+      place-items: center;
     }
 
-    @keyframes landing-demo-enter {
+    .visual-art svg {
+      width: min(100%, 310px);
+      height: auto;
+      overflow: visible;
+    }
+
+    .art-orbit,
+    .art-head,
+    .art-body,
+    .art-skin {
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: opacity 320ms ease, transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .visual-art[data-category="start"] .art-head,
+    .visual-art[data-category="start"] .art-body,
+    .visual-art[data-category="start"] .art-skin {
+      opacity: 0.72;
+    }
+
+    .visual-art[data-category="face"] .art-head {
+      opacity: 1;
+      transform: scale(1.07);
+    }
+
+    .visual-art[data-category="face"] .art-body,
+    .visual-art[data-category="face"] .art-skin {
+      opacity: 0.22;
+    }
+
+    .visual-art[data-category="skin"] .art-skin {
+      opacity: 1;
+      transform: scale(1.12);
+    }
+
+    .visual-art[data-category="skin"] .art-head,
+    .visual-art[data-category="skin"] .art-body {
+      opacity: 0.25;
+    }
+
+    .visual-art[data-category="body"] .art-body {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .visual-art[data-category="body"] .art-head,
+    .visual-art[data-category="body"] .art-skin {
+      opacity: 0.22;
+    }
+
+    .visual-art[data-category]:not([data-category="start"]) .art-orbit {
+      transform: rotate(18deg);
+    }
+
+    .visual-copy {
+      position: absolute;
+      right: 0;
+      bottom: 6px;
+      left: 0;
+      text-align: center;
+    }
+
+    .visual-copy strong {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.35rem, 2.3vw, 2rem);
+      font-weight: 500;
+    }
+
+    .visual-copy span {
+      display: block;
+      margin-top: 3px;
+      color: rgb(255 255 255 / 62%);
+      font-size: 0.82rem;
+    }
+
+    .path-card {
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+      padding: 18px;
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: var(--radius-lg);
+      background: rgb(255 255 255 / 6%);
+      backdrop-filter: blur(10px);
+    }
+
+    .path-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .path-heading strong {
+      font-size: 0.84rem;
+      letter-spacing: 0.02em;
+    }
+
+    .path-heading span {
+      color: rgb(255 255 255 / 55%);
+      font-size: 0.72rem;
+    }
+
+    .path-list {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .path-item {
+      position: relative;
+      display: grid;
+      min-height: 43px;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .path-item:not(:last-child)::after {
+      position: absolute;
+      top: 24px;
+      bottom: -1px;
+      left: 12px;
+      width: 1px;
+      background: rgb(255 255 255 / 17%);
+      content: "";
+    }
+
+    .path-number {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      width: 25px;
+      height: 25px;
+      place-items: center;
+      border: 1px solid rgb(255 255 255 / 18%);
+      border-radius: 50%;
+      color: rgb(255 255 255 / 48%);
+      background: var(--forest);
+      font-size: 0.7rem;
+      font-weight: 750;
+    }
+
+    .path-item.is-complete .path-number {
+      border-color: var(--sage);
+      color: var(--forest);
+      background: var(--sage);
+    }
+
+    .path-item.is-current .path-number {
+      border-color: var(--white);
+      color: var(--white);
+    }
+
+    .path-text {
+      min-width: 0;
+      padding: 1px 0 8px;
+    }
+
+    .path-text small,
+    .path-text strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .path-text small {
+      color: rgb(255 255 255 / 48%);
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+
+    .path-text strong {
+      margin-top: 2px;
+      color: rgb(255 255 255 / 90%);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .path-item:not(.is-complete, .is-current) .path-text strong {
+      color: rgb(255 255 255 / 34%);
+    }
+
+    .folder-path {
+      display: block;
+      margin-top: 12px;
+      padding: 9px 10px;
+      overflow: hidden;
+      border-radius: 10px;
+      color: rgb(255 255 255 / 72%);
+      background: rgb(0 0 0 / 16%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.68rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 📌 The question panel is the only content area that changes between levels. */
+    .question-panel {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      padding: clamp(28px, 5vw, 58px);
+      background: var(--surface);
+    }
+
+    .breadcrumb {
+      display: flex;
+      min-height: 34px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: clamp(28px, 5vw, 54px);
+    }
+
+    .crumb {
+      max-width: 155px;
+      padding: 6px 9px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--surface-soft);
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 680;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .crumb:hover {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .crumb-separator {
+      color: #b4ada3;
+      font-size: 0.78rem;
+    }
+
+    .crumb-placeholder {
+      color: #9c958b;
+      font-size: 0.75rem;
+      font-weight: 650;
+    }
+
+    .question-view {
+      animation: enter 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes enter {
       from {
         opacity: 0;
-        transform: translateX(24px) scale(0.985);
+        transform: translateY(9px);
       }
       to {
         opacity: 1;
-        transform: translateX(0) scale(1);
+        transform: translateY(0);
+      }
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent-dark);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 670px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 4.4vw, 3.65rem);
+      font-weight: 500;
+      letter-spacing: -0.035em;
+      line-height: 1.04;
+    }
+
+    .question-help {
+      max-width: 630px;
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.65;
+    }
+
+    .options-grid {
+      display: grid;
+      margin-top: 30px;
+      gap: 11px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .option-button {
+      position: relative;
+      display: grid;
+      min-width: 0;
+      min-height: 106px;
+      padding: 18px 44px 18px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      color: var(--ink);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: left;
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        background 180ms ease;
+    }
+
+    .option-button:hover {
+      border-color: rgb(184 95 71 / 55%);
+      background: #fffaf6;
+      box-shadow: 0 12px 30px rgb(70 51 38 / 9%);
+      transform: translateY(-2px);
+    }
+
+    .option-icon {
+      display: grid;
+      width: 31px;
+      height: 31px;
+      margin-bottom: 11px;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      font-size: 0.9rem;
+      font-weight: 780;
+    }
+
+    .option-label {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 0.93rem;
+      font-weight: 760;
+      line-height: 1.25;
+    }
+
+    .option-description {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+
+    .option-arrow {
+      position: absolute;
+      top: 18px;
+      right: 17px;
+      display: grid;
+      width: 25px;
+      height: 25px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--muted);
+      background: var(--surface-soft);
+      transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+    }
+
+    .option-button:hover .option-arrow {
+      color: var(--white);
+      background: var(--accent);
+      transform: translateX(2px);
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 28px;
+    }
+
+    .text-button,
+    .primary-button {
+      min-height: 43px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .text-button {
+      padding: 0 8px;
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .text-button:hover:not(:disabled) {
+      color: var(--ink);
+    }
+
+    .text-button:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
+    .primary-button {
+      padding: 0 20px;
+      border: 0;
+      color: var(--white);
+      background: var(--forest);
+      transition: background 160ms ease, transform 160ms ease;
+    }
+
+    .primary-button:hover {
+      background: #111714;
+      transform: translateY(-1px);
+    }
+
+    .progress-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--line);
+      transition: width 220ms ease, background 220ms ease;
+    }
+
+    .progress-dot.is-complete {
+      background: var(--sage);
+    }
+
+    .progress-dot.is-current {
+      width: 24px;
+      background: var(--accent);
+    }
+
+    /* 📌 The summary preserves all five answers instead of replacing the path. */
+    .summary-card {
+      margin-top: 28px;
+      padding: 8px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface-soft);
+    }
+
+    .summary-row {
+      display: grid;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      grid-template-columns: minmax(90px, 0.38fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .summary-row:last-child {
+      border-bottom: 0;
+    }
+
+    .summary-row span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .summary-row strong {
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .complete-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .secondary-button {
+      min-height: 43px;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .secondary-button:hover {
+      border-color: var(--accent);
+    }
+
+    .disclaimer {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 820px) {
+      .page-shell {
+        width: min(100% - 20px, 680px);
+        padding-top: 14px;
+      }
+
+      .branch-count {
+        display: none;
+      }
+
+      .experience {
+        grid-template-columns: 1fr;
+      }
+
+      .visual-panel {
+        padding: 24px;
+      }
+
+      .visual-art {
+        min-height: 205px;
+        margin-top: 12px;
+      }
+
+      .visual-art svg {
+        width: min(77%, 270px);
+      }
+
+      .path-card {
+        margin-top: 6px;
+      }
+
+      .path-list {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .path-item {
+        display: block;
+        min-height: auto;
+      }
+
+      .path-item::after {
+        display: none;
+      }
+
+      .path-number {
+        margin-bottom: 6px;
+      }
+
+      .path-text small {
+        display: none;
+      }
+
+      .path-text strong {
+        font-size: 0.68rem;
+      }
+
+      .question-panel {
+        min-height: 610px;
+        padding: 28px 24px 24px;
+      }
+
+      .breadcrumb {
+        margin-bottom: 30px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .brand-bar {
+        margin-inline: 4px;
+      }
+
+      .brand {
+        font-size: 0.7rem;
+        letter-spacing: 0.09em;
+      }
+
+      .experience {
+        border-radius: 24px;
+      }
+
+      .visual-panel {
+        padding: 20px;
+      }
+
+      .visual-art {
+        min-height: 175px;
+      }
+
+      .visual-art svg {
+        width: min(70%, 220px);
+      }
+
+      .visual-copy strong {
+        font-size: 1.3rem;
+      }
+
+      .path-card {
+        padding: 14px;
+      }
+
+      .folder-path {
+        font-size: 0.62rem;
+      }
+
+      .question-panel {
+        min-height: 580px;
+        padding: 25px 20px 22px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 11vw, 2.72rem);
+      }
+
+      .question-help {
+        font-size: 0.88rem;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .option-button {
+        min-height: 88px;
+        padding-block: 14px;
+      }
+
+      .option-icon {
+        float: left;
+        margin: 0 11px 0 0;
+      }
+
+      .option-description {
+        padding-left: 42px;
+      }
+
+      .summary-row {
+        grid-template-columns: 90px minmax(0, 1fr);
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      #landing-image-demo .demo-screen.is-active {
-        animation: none;
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
+</head>
+<body>
+  <main class="page-shell" id="path-finder">
+    <header class="brand-bar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>Consultation Path Finder</span>
+      </div>
+      <span class="branch-count">5 levels · 768 possible paths</span>
+    </header>
 
-  <section class="demo-screen is-active" data-screen="welcome">
-    <svg class="demo-image" viewBox="0 0 1200 675" role="img" aria-labelledby="landing-welcome-title landing-welcome-desc">
-      <title id="landing-welcome-title">Modern consultation room</title>
-      <desc id="landing-welcome-desc">A calm consultation room introducing two treatment paths.</desc>
-      <defs>
-        <linearGradient id="landing-welcome-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--card)" />
-          <stop offset="1" stop-color="var(--muted)" />
-        </linearGradient>
-        <linearGradient id="landing-welcome-glow" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="var(--viz-series-1)" stop-opacity="0.55" />
-          <stop offset="1" stop-color="var(--viz-series-2)" stop-opacity="0.12" />
-        </linearGradient>
-      </defs>
-      <rect width="1200" height="675" fill="url(#landing-welcome-bg)" />
-      <circle cx="945" cy="130" r="210" fill="url(#landing-welcome-glow)" />
-      <rect x="70" y="80" width="420" height="310" rx="16" fill="var(--background)" opacity="0.75" />
-      <path d="M280 100V370M90 235H470" stroke="var(--border)" stroke-width="10" />
-      <path d="M0 548C230 490 400 566 620 532C860 496 1020 480 1200 530V675H0Z" fill="var(--card)" />
-      <rect x="540" y="392" width="510" height="150" rx="54" fill="var(--primary)" opacity="0.9" />
-      <rect x="585" y="335" width="185" height="105" rx="42" fill="var(--secondary)" />
-      <rect x="820" y="335" width="185" height="105" rx="42" fill="var(--secondary)" />
-      <rect x="105" y="420" width="140" height="148" rx="12" fill="var(--secondary)" />
-      <path d="M175 420C112 357 110 294 160 258C178 322 212 352 175 420Z" fill="var(--viz-series-2)" opacity="0.78" />
-      <path d="M175 420C235 360 250 302 216 268C186 318 153 354 175 420Z" fill="var(--viz-series-1)" opacity="0.64" />
-      <circle cx="620" cy="173" r="78" fill="var(--viz-series-1)" opacity="0.2" />
-      <circle cx="620" cy="173" r="46" fill="var(--viz-series-1)" opacity="0.42" />
-      <path d="M595 173L615 193L652 150" fill="none" stroke="var(--foreground)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.72" />
-    </svg>
-    <div class="demo-copy">
-      <h3>What would you like to explore?</h3>
-      <p>Choose a path and the image will change without leaving this page.</p>
-    </div>
-    <div class="viz-controls" aria-label="Choose a treatment path">
-      <button type="button" class="btn btn-primary" data-target="skin">Skin rejuvenation</button>
-      <button type="button" class="btn" data-target="body">Body contouring</button>
-    </div>
-  </section>
+    <section class="experience" aria-labelledby="question-title">
+      <aside class="visual-panel" aria-label="Your selected consultation path">
+        <span class="level-badge" id="level-badge">Question 1 of 5</span>
 
-  <section class="demo-screen" data-screen="skin" hidden>
-    <svg class="demo-image" viewBox="0 0 1200 675" role="img" aria-labelledby="landing-skin-title landing-skin-desc">
-      <title id="landing-skin-title">Skin rejuvenation visual</title>
-      <desc id="landing-skin-desc">A stylized portrait with soft light and sparkle details.</desc>
-      <defs>
-        <linearGradient id="landing-skin-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--muted)" />
-          <stop offset="1" stop-color="var(--card)" />
-        </linearGradient>
-        <radialGradient id="landing-skin-halo">
-          <stop offset="0" stop-color="var(--viz-series-1)" stop-opacity="0.58" />
-          <stop offset="1" stop-color="var(--viz-series-1)" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1200" height="675" fill="url(#landing-skin-bg)" />
-      <circle cx="690" cy="315" r="310" fill="url(#landing-skin-halo)" />
-      <path d="M610 100C780 50 935 150 935 338C935 510 827 591 654 575C518 563 420 474 420 330C420 223 477 139 610 100Z" fill="var(--secondary)" />
-      <path d="M636 123C735 78 860 125 895 231C921 308 893 370 848 413C813 447 799 505 818 556C736 590 624 575 564 523C517 482 490 414 505 344C521 270 566 213 636 123Z" fill="var(--primary)" opacity="0.9" />
-      <path d="M645 238C688 215 737 218 777 242M651 327C691 349 746 347 784 320" fill="none" stroke="var(--primary-foreground)" stroke-width="10" stroke-linecap="round" opacity="0.72" />
-      <path d="M480 153L497 193L538 210L497 226L480 267L464 226L423 210L464 193Z" fill="var(--viz-series-1)" />
-      <path d="M968 263L980 292L1009 304L980 316L968 345L956 316L927 304L956 292Z" fill="var(--viz-series-2)" />
-      <path d="M322 393L335 424L367 437L335 450L322 481L309 450L278 437L309 424Z" fill="var(--viz-series-1)" opacity="0.7" />
-      <circle cx="978" cy="140" r="22" fill="var(--viz-series-1)" opacity="0.45" />
-      <circle cx="351" cy="242" r="14" fill="var(--viz-series-2)" opacity="0.58" />
-    </svg>
-    <div class="demo-copy">
-      <h3>Skin rejuvenation</h3>
-      <p>This screen could show treatment options, before-and-after images, or a booking invitation.</p>
-    </div>
-    <div class="viz-controls">
-      <button type="button" class="btn btn-ghost" data-target="welcome">Back</button>
-      <button type="button" class="btn btn-primary" data-target="complete" data-choice="Skin rejuvenation">Continue</button>
-    </div>
-  </section>
+        <div class="visual-art" id="visual-art" data-category="start">
+          <svg viewBox="0 0 360 300" role="img" aria-labelledby="art-title art-description">
+            <title id="art-title">Consultation area illustration</title>
+            <desc id="art-description">An abstract face and body illustration that highlights the selected category.</desc>
+            <g class="art-orbit" fill="none" stroke="currentColor" opacity="0.16">
+              <ellipse cx="180" cy="142" rx="137" ry="102" stroke-width="1.5" />
+              <ellipse cx="180" cy="142" rx="108" ry="135" stroke-width="1" stroke-dasharray="5 8" />
+            </g>
+            <g class="art-body" fill="#a6b8a8">
+              <path d="M134 276c11-45 22-78 33-98h26c12 21 23 54 33 98z" opacity="0.72" />
+              <path d="M125 276c10-57 25-91 42-105 6 18 20 28 13 53-5 20-10 35-7 52z" opacity="0.34" />
+              <path d="M235 276c-10-57-25-91-42-105-6 18-20 28-13 53 5 20 10 35 7 52z" opacity="0.34" />
+            </g>
+            <g class="art-head">
+              <path d="M180 38c-44 0-70 33-67 79 3 48 31 82 67 82s64-34 67-82c3-46-23-79-67-79z" fill="#f5dfd7" />
+              <path d="M118 112c5-49 28-76 65-76 34 0 56 20 63 57-21-11-39-30-48-48-14 27-42 51-80 67z" fill="#b85f47" opacity="0.72" />
+              <path d="M145 125c10-6 20-6 29 0m12 0c10-6 20-6 29 0m-54 37c12 8 26 8 38 0" fill="none" stroke="#26302b" stroke-linecap="round" stroke-width="4" opacity="0.62" />
+            </g>
+            <g class="art-skin" fill="#f2c8b8">
+              <circle cx="125" cy="150" r="8" />
+              <circle cx="231" cy="139" r="5" />
+              <path d="m91 73 5 12 12 5-12 5-5 12-5-12-12-5 12-5z" />
+              <path d="m269 184 4 10 10 4-10 4-4 10-4-10-10-4 10-4z" />
+            </g>
+          </svg>
 
-  <section class="demo-screen" data-screen="body" hidden>
-    <svg class="demo-image" viewBox="0 0 1200 675" role="img" aria-labelledby="landing-body-title landing-body-desc">
-      <title id="landing-body-title">Body contouring visual</title>
-      <desc id="landing-body-desc">An abstract body-contouring silhouette surrounded by flowing contour lines.</desc>
-      <defs>
-        <linearGradient id="landing-body-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--card)" />
-          <stop offset="1" stop-color="var(--muted)" />
-        </linearGradient>
-        <linearGradient id="landing-body-form" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="var(--viz-series-2)" stop-opacity="0.72" />
-          <stop offset="1" stop-color="var(--viz-series-1)" stop-opacity="0.35" />
-        </linearGradient>
-      </defs>
-      <rect width="1200" height="675" fill="url(#landing-body-bg)" />
-      <circle cx="600" cy="150" r="78" fill="var(--secondary)" />
-      <path d="M505 231C535 206 567 197 600 197C633 197 665 206 695 231C733 263 744 310 725 358C702 416 708 493 756 568H444C492 493 498 416 475 358C456 310 467 263 505 231Z" fill="url(#landing-body-form)" />
-      <path d="M464 277C372 315 302 383 260 470M736 277C828 315 898 383 940 470" fill="none" stroke="var(--viz-series-1)" stroke-width="14" stroke-linecap="round" opacity="0.5" />
-      <path d="M412 216C301 256 214 347 174 466M788 216C899 256 986 347 1026 466" fill="none" stroke="var(--viz-series-2)" stroke-width="8" stroke-linecap="round" opacity="0.38" />
-      <path d="M502 356C563 387 637 387 698 356M480 414C553 453 647 453 720 414M469 478C550 521 650 521 731 478" fill="none" stroke="var(--foreground)" stroke-width="8" stroke-linecap="round" opacity="0.45" />
-      <circle cx="174" cy="164" r="36" fill="var(--viz-series-1)" opacity="0.3" />
-      <circle cx="1020" cy="535" r="58" fill="var(--viz-series-2)" opacity="0.25" />
-    </svg>
-    <div class="demo-copy">
-      <h3>Body contouring</h3>
-      <p>The same landing-page space now displays a completely different image and message.</p>
-    </div>
-    <div class="viz-controls">
-      <button type="button" class="btn btn-ghost" data-target="welcome">Back</button>
-      <button type="button" class="btn btn-primary" data-target="complete" data-choice="Body contouring">Continue</button>
-    </div>
-  </section>
+          <div class="visual-copy" aria-live="polite">
+            <strong id="visual-title">Your priorities, organized</strong>
+            <span id="visual-subtitle">Five quick choices create one clear path</span>
+          </div>
+        </div>
 
-  <section class="demo-screen" data-screen="complete" hidden>
-    <svg class="demo-image" viewBox="0 0 1200 675" role="img" aria-labelledby="landing-complete-title landing-complete-desc">
-      <title id="landing-complete-title">Consultation path complete</title>
-      <desc id="landing-complete-desc">A calendar with a check mark showing the final call to action.</desc>
-      <defs>
-        <linearGradient id="landing-complete-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--muted)" />
-          <stop offset="1" stop-color="var(--card)" />
-        </linearGradient>
-      </defs>
-      <rect width="1200" height="675" fill="url(#landing-complete-bg)" />
-      <circle cx="600" cy="330" r="260" fill="var(--viz-series-1)" opacity="0.16" />
-      <rect x="355" y="160" width="490" height="365" rx="38" fill="var(--card)" stroke="var(--border)" stroke-width="8" />
-      <path d="M355 255H845" stroke="var(--border)" stroke-width="8" />
-      <path d="M465 125V204M735 125V204" stroke="var(--foreground)" stroke-width="24" stroke-linecap="round" opacity="0.68" />
-      <circle cx="600" cy="384" r="108" fill="var(--primary)" />
-      <path d="M547 383L584 420L662 337" fill="none" stroke="var(--primary-foreground)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="262" cy="273" r="24" fill="var(--viz-series-2)" opacity="0.45" />
-      <circle cx="942" cy="430" r="38" fill="var(--viz-series-1)" opacity="0.4" />
-    </svg>
-    <div class="demo-copy">
-      <h3>Ready for the final call to action</h3>
-      <p>You selected <strong id="landing-demo-selection">a treatment path</strong>. A real version could now open the consultation form.</p>
-    </div>
-    <div class="viz-controls">
-      <button type="button" class="btn" data-target="welcome">Restart demo</button>
-      <button type="button" class="btn btn-primary" data-target="welcome">Book consultation</button>
-    </div>
-  </section>
+        <div class="path-card">
+          <div class="path-heading">
+            <strong>Your selected path</strong>
+            <span>Like subfolders</span>
+          </div>
+          <ol class="path-list" id="path-list"></ol>
+          <code class="folder-path" id="folder-path">/start</code>
+        </div>
+      </aside>
+
+      <section class="question-panel">
+        <nav class="breadcrumb" id="breadcrumb" aria-label="Editable selection breadcrumbs"></nav>
+
+        <div class="question-view" id="question-view" aria-live="polite"></div>
+
+        <footer class="panel-actions" id="panel-actions">
+          <button class="text-button" id="back-button" type="button" disabled>← Back</button>
+          <div class="progress-dots" id="progress-dots" aria-label="Question progress"></div>
+          <button class="text-button" id="restart-button" type="button">Start over</button>
+        </footer>
+      </section>
+    </section>
+
+    <p class="disclaimer">This demonstration organizes consultation interests. It does not diagnose a condition or recommend a medical treatment.</p>
+  </main>
 
   <script>
     /*
-    📌 Purpose: Control the image screens and branching buttons inside one landing-page embed.
-    ❓ Business Question: Which visual screen should appear after each visitor choice?
-    👉 The button's target value identifies the next screen, and its optional choice value personalizes the final message.
-    🧠 Logic Summary: Find the component, collect its screens, listen for button clicks, match the requested destination, update the selected treatment, and reveal the next screen.
+    📌 Purpose: Run a five-level branching questionnaire without loading another HTML page.
+    ❓ Business Question: How do we let visitors explore many paths while keeping their complete selection history editable?
+    👉 Answer: Store each choice in a path array, derive the next options from that array, and rebuild the question, breadcrumbs, progress, illustration, and summary after every interaction.
+    🧠 Logic Summary: Read the decision tree, render one level, append a selected option, allow backward slicing from breadcrumbs, and display all five choices on completion.
     */
     (function () {
-      const root = document.getElementById("landing-image-demo"); // 📌 Demo container
+      "use strict";
 
-      if (!root) {
-        return;
+      const levels = ["Area", "Focus", "Concern", "Result style", "Timing"]; // Five level names
+
+      const categories = [
+        {
+          id: "face",
+          label: "Face",
+          icon: "F",
+          description: "Lips, eyes, jawline and facial balance",
+          question: "Which facial feature would you like to explore?",
+          help: "Choose the feature that is closest to what first catches your attention.",
+          children: [
+            {
+              id: "lips",
+              label: "Lips",
+              icon: "Li",
+              description: "Shape, volume, lines or symmetry",
+              concerns: [
+                { id: "fullness", label: "Add fullness", icon: "+", description: "Explore a little more visible volume" },
+                { id: "lip-shape", label: "Refine shape", icon: "⌁", description: "Focus on border and overall shape" },
+                { id: "lip-lines", label: "Soften lip lines", icon: "≈", description: "Explore lines on or around the lips" },
+                { id: "lip-symmetry", label: "Improve symmetry", icon: "↔", description: "Focus on balance between both sides" }
+              ]
+            },
+            {
+              id: "eyes",
+              label: "Eyes",
+              icon: "Ey",
+              description: "Under-eyes, fine lines, puffiness or brows",
+              concerns: [
+                { id: "under-eye-hollows", label: "Under-eye hollows", icon: "◡", description: "Explore a tired or shadowed appearance" },
+                { id: "eye-puffiness", label: "Puffiness", icon: "◉", description: "Focus on fullness beneath the eyes" },
+                { id: "eye-lines", label: "Fine lines", icon: "≈", description: "Explore lines around the eye area" },
+                { id: "brow-area", label: "Brow or upper eye", icon: "⌃", description: "Focus on the space above the eyes" }
+              ]
+            },
+            {
+              id: "jawline",
+              label: "Jawline",
+              icon: "Ja",
+              description: "Definition, firmness, balance or under-chin area",
+              concerns: [
+                { id: "jaw-definition", label: "More definition", icon: "◇", description: "Explore a clearer jawline outline" },
+                { id: "under-chin", label: "Under-chin fullness", icon: "⌄", description: "Focus on the area below the jaw" },
+                { id: "jaw-symmetry", label: "Improve symmetry", icon: "↔", description: "Explore balance from side to side" },
+                { id: "jaw-firmness", label: "Skin firmness", icon: "↑", description: "Focus on softness along the jaw" }
+              ]
+            },
+            {
+              id: "cheeks",
+              label: "Cheeks",
+              icon: "Ch",
+              description: "Contour, volume, balance or smile lines",
+              concerns: [
+                { id: "cheek-contour", label: "Cheek contour", icon: "／", description: "Explore more visible cheek structure" },
+                { id: "cheek-volume", label: "Restore volume", icon: "+", description: "Focus on a fuller, supported look" },
+                { id: "facial-balance", label: "Facial balance", icon: "↔", description: "Explore proportion with nearby features" },
+                { id: "smile-lines", label: "Smile lines", icon: ")", description: "Focus on lines beside the mouth" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "skin",
+          label: "Skin",
+          icon: "S",
+          description: "Texture, tone, breakouts and redness",
+          question: "What would you most like to improve about your skin?",
+          help: "Pick the skin category that best represents your main concern today.",
+          children: [
+            {
+              id: "texture",
+              label: "Texture",
+              icon: "Tx",
+              description: "Smoothness, pores, lines or scars",
+              concerns: [
+                { id: "smoothness", label: "Overall smoothness", icon: "≈", description: "Explore a more even surface" },
+                { id: "pores", label: "Visible pores", icon: "··", description: "Focus on the appearance of pores" },
+                { id: "skin-lines", label: "Fine lines", icon: "≋", description: "Explore early or visible fine lines" },
+                { id: "scars", label: "Scar texture", icon: "⌁", description: "Focus on uneven areas from scarring" }
+              ]
+            },
+            {
+              id: "tone",
+              label: "Tone & pigmentation",
+              icon: "Tn",
+              description: "Spots, dullness or uneven color",
+              concerns: [
+                { id: "pigmentation", label: "Pigmentation", icon: "●", description: "Explore concentrated areas of color" },
+                { id: "sun-spots", label: "Sun spots", icon: "☼", description: "Focus on spots associated with sun exposure" },
+                { id: "dullness", label: "Dullness", icon: "✦", description: "Explore a brighter-looking complexion" },
+                { id: "uneven-tone", label: "Uneven tone", icon: "◐", description: "Focus on overall color consistency" }
+              ]
+            },
+            {
+              id: "acne",
+              label: "Acne & pores",
+              icon: "Ac",
+              description: "Breakouts, marks, congestion or oil",
+              concerns: [
+                { id: "breakouts", label: "Active breakouts", icon: "•", description: "Focus on current blemishes" },
+                { id: "acne-marks", label: "Post-acne marks", icon: "◌", description: "Explore lingering visible marks" },
+                { id: "congestion", label: "Congestion", icon: "••", description: "Focus on clogged-looking areas" },
+                { id: "oil-balance", label: "Oil balance", icon: "◒", description: "Explore shine and oiliness" }
+              ]
+            },
+            {
+              id: "redness",
+              label: "Redness",
+              icon: "Rd",
+              description: "Sensitivity, vessels or recurring flare-ups",
+              concerns: [
+                { id: "general-redness", label: "General redness", icon: "○", description: "Focus on widespread visible redness" },
+                { id: "sensitivity", label: "Sensitivity", icon: "!", description: "Explore easily reactive-looking skin" },
+                { id: "visible-vessels", label: "Visible vessels", icon: "Y", description: "Focus on fine visible vessel patterns" },
+                { id: "flare-ups", label: "Recurring flare-ups", icon: "↻", description: "Explore redness that comes and goes" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "body",
+          label: "Body",
+          icon: "B",
+          description: "Abdomen, arms, thighs and waist",
+          question: "Which body area would you like to focus on?",
+          help: "Choose one area first. A later version could let visitors add a second area.",
+          children: [
+            {
+              id: "abdomen",
+              label: "Abdomen",
+              icon: "Ab",
+              description: "Contour, firmness, texture or fullness",
+              concerns: [
+                { id: "abdomen-contour", label: "Contour", icon: "◇", description: "Explore the overall abdominal outline" },
+                { id: "abdomen-firmness", label: "Firmness", icon: "↑", description: "Focus on skin softness or laxity" },
+                { id: "stretch-marks", label: "Stretch marks", icon: "≋", description: "Explore visible textural lines" },
+                { id: "abdomen-fullness", label: "Localized fullness", icon: "○", description: "Focus on one persistent area" }
+              ]
+            },
+            {
+              id: "arms",
+              label: "Arms",
+              icon: "Ar",
+              description: "Shape, firmness, texture or symmetry",
+              concerns: [
+                { id: "arm-contour", label: "Contour", icon: "◇", description: "Explore the overall upper-arm shape" },
+                { id: "arm-firmness", label: "Firmness", icon: "↑", description: "Focus on skin softness" },
+                { id: "arm-texture", label: "Skin texture", icon: "≈", description: "Explore uneven-looking texture" },
+                { id: "arm-symmetry", label: "Symmetry", icon: "↔", description: "Focus on balance between both arms" }
+              ]
+            },
+            {
+              id: "thighs",
+              label: "Thighs",
+              icon: "Th",
+              description: "Contour, cellulite appearance or firmness",
+              concerns: [
+                { id: "thigh-contour", label: "Contour", icon: "◇", description: "Explore the overall thigh shape" },
+                { id: "cellulite", label: "Cellulite appearance", icon: "··", description: "Focus on visible dimpling" },
+                { id: "thigh-firmness", label: "Firmness", icon: "↑", description: "Explore skin softness or laxity" },
+                { id: "inner-thigh", label: "Inner thigh", icon: "><", description: "Focus specifically on the inner area" }
+              ]
+            },
+            {
+              id: "waist",
+              label: "Waist & flanks",
+              icon: "Wa",
+              description: "Shape, fullness, symmetry or firmness",
+              concerns: [
+                { id: "waist-shape", label: "Waist shaping", icon: ")(", description: "Explore a more defined outline" },
+                { id: "flank-fullness", label: "Localized fullness", icon: "○", description: "Focus on the side or flank area" },
+                { id: "waist-symmetry", label: "Symmetry", icon: "↔", description: "Explore side-to-side balance" },
+                { id: "waist-firmness", label: "Skin firmness", icon: "↑", description: "Focus on softness around the waist" }
+              ]
+            }
+          ]
+        }
+      ];
+
+      const resultStyles = [
+        { id: "very-subtle", label: "Very subtle", icon: "1", description: "A small change that is hard to notice" },
+        { id: "natural-balanced", label: "Natural & balanced", icon: "2", description: "Visible improvement that still feels like you" },
+        { id: "more-noticeable", label: "More noticeable", icon: "3", description: "A clearer, more defined change" },
+        { id: "expert-guidance", label: "I need guidance", icon: "?", description: "Let a qualified professional help decide" }
+      ];
+
+      const timingOptions = [
+        { id: "just-exploring", label: "Just exploring", icon: "…", description: "Learning what may be available" },
+        { id: "three-six-months", label: "In 3–6 months", icon: "6", description: "Considering something later this year" },
+        { id: "one-three-months", label: "In 1–3 months", icon: "3", description: "Interested in planning fairly soon" },
+        { id: "as-soon-as-appropriate", label: "As soon as appropriate", icon: "→", description: "Ready to discuss suitable next steps" }
+      ];
+
+      const root = document.getElementById("path-finder"); // Main app
+      const questionView = document.getElementById("question-view"); // Changing question area
+      const breadcrumb = document.getElementById("breadcrumb"); // Editable breadcrumbs
+      const pathList = document.getElementById("path-list"); // Five level path
+      const folderPath = document.getElementById("folder-path"); // Folder style path
+      const visualArt = document.getElementById("visual-art"); // Dynamic illustration
+      const visualTitle = document.getElementById("visual-title"); // Illustration title
+      const visualSubtitle = document.getElementById("visual-subtitle"); // Illustration subtitle
+      const levelBadge = document.getElementById("level-badge"); // Current level label
+      const backButton = document.getElementById("back-button"); // Back control
+      const restartButton = document.getElementById("restart-button"); // Reset control
+      const progressDots = document.getElementById("progress-dots"); // Progress indicator
+      const panelActions = document.getElementById("panel-actions"); // Footer actions
+      let path = []; // Selected choices
+
+      function findCategory() {
+        const categoryId = path[0] && path[0].id; // Selected area id
+        return categories.find(function (category) {
+          return category.id === categoryId;
+        });
       }
 
-      // ❓ What does this expression do? Why do we need it?
-      // 👉 It converts every screen inside this specific embed into an array so the script can hide and reveal screens without affecting the rest of the landing page.
-      const screens = Array.from(root.querySelectorAll("[data-screen]"));
-      const selection = root.querySelector("#landing-demo-selection"); // 📌 Selected path label
+      function findFocus() {
+        const category = findCategory(); // Selected area
+        const focusId = path[1] && path[1].id; // Selected focus id
 
-      function showScreen(target, choice) {
+        if (!category) {
+          return undefined;
+        }
+
+        return category.children.find(function (focus) {
+          return focus.id === focusId;
+        });
+      }
+
+      function currentOptions() {
         // ❓ What does this expression do? Why do we need it?
-        // 👉 It finds the one screen whose data-screen value matches the pressed button, allowing branching paths instead of a fixed next-page sequence.
-        const nextScreen = screens.find(function (screen) {
-          return screen.dataset.screen === target;
+        // 👉 It chooses a different option source for each depth, creating real branches for area, focus, and concern while reusing consistent preference and timing choices.
+        if (path.length === 0) {
+          return categories;
+        }
+
+        if (path.length === 1) {
+          const category = findCategory(); // Selected area
+          return category ? category.children : [];
+        }
+
+        if (path.length === 2) {
+          const focus = findFocus(); // Selected focus
+          return focus ? focus.concerns : [];
+        }
+
+        if (path.length === 3) {
+          return resultStyles;
+        }
+
+        if (path.length === 4) {
+          return timingOptions;
+        }
+
+        return [];
+      }
+
+      function questionContent() {
+        const category = findCategory(); // Selected area
+        const focus = findFocus(); // Selected focus
+
+        if (path.length === 0) {
+          return {
+            eyebrow: "Level 1 · Area",
+            title: "Where would you like to focus?",
+            help: "Begin with one broad area. Each answer opens a more specific set of choices without leaving this page."
+          };
+        }
+
+        if (path.length === 1 && category) {
+          return {
+            eyebrow: "Level 2 · Focus",
+            title: category.question,
+            help: category.help
+          };
+        }
+
+        if (path.length === 2 && focus) {
+          return {
+            eyebrow: "Level 3 · Concern",
+            title: "What matters most about your " + focus.label.toLowerCase() + "?",
+            help: "Choose the concern that best describes the result you want to discuss."
+          };
+        }
+
+        if (path.length === 3) {
+          return {
+            eyebrow: "Level 4 · Result style",
+            title: "What kind of result feels right?",
+            help: "This preference helps frame the conversation; it is not a treatment recommendation."
+          };
+        }
+
+        return {
+          eyebrow: "Level 5 · Timing",
+          title: "When are you thinking about this?",
+          help: "Select the timing that best matches where you are in the decision process."
+        };
+      }
+
+      function createOptionButton(option) {
+        const button = document.createElement("button"); // Option button
+        const icon = document.createElement("span"); // Option icon
+        const label = document.createElement("span"); // Option label
+        const description = document.createElement("span"); // Option description
+        const arrow = document.createElement("span"); // Forward arrow
+
+        button.type = "button";
+        button.className = "option-button";
+        button.dataset.optionId = option.id;
+
+        icon.className = "option-icon";
+        icon.textContent = option.icon;
+        icon.setAttribute("aria-hidden", "true");
+
+        label.className = "option-label";
+        label.textContent = option.label;
+
+        description.className = "option-description";
+        description.textContent = option.description;
+
+        arrow.className = "option-arrow";
+        arrow.textContent = "→";
+        arrow.setAttribute("aria-hidden", "true");
+
+        button.append(icon, label, description, arrow);
+        return button;
+      }
+
+      function renderQuestion() {
+        const content = questionContent(); // Current question copy
+        const options = currentOptions(); // Current branch choices
+        const eyebrow = document.createElement("p"); // Level label
+        const title = document.createElement("h1"); // Question title
+        const help = document.createElement("p"); // Question guidance
+        const grid = document.createElement("div"); // Choice grid
+
+        questionView.replaceChildren();
+        questionView.className = "question-view";
+
+        eyebrow.className = "eyebrow";
+        eyebrow.textContent = content.eyebrow;
+
+        title.id = "question-title";
+        title.textContent = content.title;
+
+        help.className = "question-help";
+        help.textContent = content.help;
+
+        grid.className = "options-grid";
+        grid.setAttribute("aria-label", content.title);
+
+        options.forEach(function (option) {
+          grid.appendChild(createOptionButton(option));
         });
 
-        if (!nextScreen) {
+        questionView.append(eyebrow, title, help, grid);
+      }
+
+      function renderSummary() {
+        const eyebrow = document.createElement("p"); // Completion label
+        const title = document.createElement("h1"); // Summary title
+        const help = document.createElement("p"); // Summary guidance
+        const card = document.createElement("div"); // Summary card
+        const actions = document.createElement("div"); // Summary actions
+        const editButton = document.createElement("button"); // Edit last answer
+        const resetButton = document.createElement("button"); // Restart path
+
+        questionView.replaceChildren();
+        questionView.className = "question-view";
+
+        eyebrow.className = "eyebrow";
+        eyebrow.textContent = "Path complete · 5 of 5";
+
+        title.id = "question-title";
+        title.textContent = "Your consultation path is ready.";
+
+        help.className = "question-help";
+        help.textContent = "Every branch that led here is shown below. Use any breadcrumb above to change that level and rebuild the later choices.";
+
+        card.className = "summary-card";
+
+        path.forEach(function (choice, index) {
+          const row = document.createElement("div"); // Summary row
+          const level = document.createElement("span"); // Row level
+          const answer = document.createElement("strong"); // Row answer
+
+          row.className = "summary-row";
+          level.textContent = levels[index];
+          answer.textContent = choice.label;
+          row.append(level, answer);
+          card.appendChild(row);
+        });
+
+        actions.className = "complete-actions";
+
+        editButton.type = "button";
+        editButton.className = "secondary-button";
+        editButton.dataset.action = "edit-last";
+        editButton.textContent = "← Edit last choice";
+
+        resetButton.type = "button";
+        resetButton.className = "primary-button";
+        resetButton.dataset.action = "restart";
+        resetButton.textContent = "Build another path";
+
+        actions.append(editButton, resetButton);
+        questionView.append(eyebrow, title, help, card, actions);
+      }
+
+      function renderBreadcrumbs() {
+        breadcrumb.replaceChildren();
+
+        if (path.length === 0) {
+          const start = document.createElement("span"); // Start placeholder
+          start.className = "crumb-placeholder";
+          start.textContent = "Start › Choose an area";
+          breadcrumb.appendChild(start);
           return;
         }
 
-        // ❓ What does this expression do? Why do we need it?
-        // 👉 It hides all available screens first, ensuring that only the visitor's chosen image occupies the landing-page space.
-        screens.forEach(function (screen) {
-          screen.classList.remove("is-active");
-          screen.hidden = true;
+        path.forEach(function (choice, index) {
+          const crumb = document.createElement("button"); // Editable crumb
+
+          crumb.type = "button";
+          crumb.className = "crumb";
+          crumb.dataset.editIndex = String(index);
+          crumb.textContent = choice.label;
+          crumb.setAttribute("aria-label", "Edit " + levels[index] + ": " + choice.label);
+          breadcrumb.appendChild(crumb);
+
+          if (index < path.length - 1) {
+            const separator = document.createElement("span"); // Crumb separator
+            separator.className = "crumb-separator";
+            separator.textContent = "›";
+            separator.setAttribute("aria-hidden", "true");
+            breadcrumb.appendChild(separator);
+          }
         });
 
-        if (choice && selection) {
-          selection.textContent = choice;
+        if (path.length < levels.length) {
+          const separator = document.createElement("span"); // Crumb separator
+          const current = document.createElement("span"); // Current level
+
+          separator.className = "crumb-separator";
+          separator.textContent = "›";
+          separator.setAttribute("aria-hidden", "true");
+
+          current.className = "crumb-placeholder";
+          current.textContent = "Choose " + levels[path.length].toLowerCase();
+          breadcrumb.append(separator, current);
         }
-
-        nextScreen.hidden = false;
-
-        // ❓ What does this expression do? Why do we need it?
-        // 👉 It waits for the browser's next paint before adding the active class so the selected image receives a fresh entrance animation.
-        window.requestAnimationFrame(function () {
-          nextScreen.classList.add("is-active");
-        });
       }
 
-      // ❓ What does this expression do? Why do we need it?
-      // 👉 It uses one click listener for every current or future navigation button inside the embed, keeping the interaction compact and reliable.
+      function renderPathList() {
+        pathList.replaceChildren();
+
+        levels.forEach(function (level, index) {
+          const item = document.createElement("li"); // Path level row
+          const number = document.createElement("span"); // Level number
+          const text = document.createElement("span"); // Level copy
+          const name = document.createElement("small"); // Level name
+          const answer = document.createElement("strong"); // Selected answer
+          const choice = path[index]; // Level choice
+
+          item.className = "path-item";
+
+          if (choice) {
+            item.classList.add("is-complete");
+          } else if (index === path.length) {
+            item.classList.add("is-current");
+          }
+
+          number.className = "path-number";
+          number.textContent = choice ? "✓" : String(index + 1);
+
+          text.className = "path-text";
+          name.textContent = level;
+          answer.textContent = choice ? choice.label : index === path.length ? "Choose now" : "Waiting";
+
+          text.append(name, answer);
+          item.append(number, text);
+          pathList.appendChild(item);
+        });
+
+        // ❓ What does this expression do? Why do we need it?
+        // 👉 It converts each internal choice id into a slash-separated path so visitors can read their answers exactly like nested subfolders.
+        folderPath.textContent = path.length
+          ? "/" + path.map(function (choice) { return choice.id; }).join("/")
+          : "/start";
+      }
+
+      function renderProgress() {
+        progressDots.replaceChildren();
+
+        levels.forEach(function (_level, index) {
+          const dot = document.createElement("span"); // Progress dot
+          dot.className = "progress-dot";
+
+          if (index < path.length) {
+            dot.classList.add("is-complete");
+          } else if (index === path.length) {
+            dot.classList.add("is-current");
+          }
+
+          progressDots.appendChild(dot);
+        });
+
+        progressDots.setAttribute("aria-label", path.length === levels.length
+          ? "All five questions complete"
+          : "Question " + (path.length + 1) + " of " + levels.length);
+      }
+
+      function updateVisual() {
+        const category = findCategory(); // Selected area
+        const latest = path[path.length - 1]; // Latest choice
+
+        visualArt.dataset.category = category ? category.id : "start";
+
+        if (!latest) {
+          visualTitle.textContent = "Your priorities, organized";
+          visualSubtitle.textContent = "Five quick choices create one clear path";
+          return;
+        }
+
+        visualTitle.textContent = latest.label;
+        visualSubtitle.textContent = path.length === levels.length
+          ? "Your complete consultation path"
+          : levels[path.length - 1] + " selected · continue to " + levels[path.length];
+      }
+
+      function render() {
+        const isComplete = path.length === levels.length; // Completion state
+
+        renderBreadcrumbs();
+        renderPathList();
+        renderProgress();
+        updateVisual();
+
+        levelBadge.textContent = isComplete
+          ? "Path complete · 5 of 5"
+          : "Question " + (path.length + 1) + " of " + levels.length;
+
+        backButton.disabled = path.length === 0;
+        panelActions.hidden = isComplete;
+
+        if (isComplete) {
+          renderSummary();
+        } else {
+          renderQuestion();
+        }
+      }
+
+      function chooseOption(optionId) {
+        const options = currentOptions(); // Available choices
+
+        // ❓ What does this expression do? Why do we need it?
+        // 👉 It accepts only an id that exists in the currently visible branch, preventing a stale or unrelated button from changing the path.
+        const selected = options.find(function (option) {
+          return option.id === optionId;
+        });
+
+        if (!selected) {
+          return;
+        }
+
+        path.push({
+          id: selected.id,
+          label: selected.label,
+          description: selected.description
+        });
+        render();
+      }
+
       root.addEventListener("click", function (event) {
-        const button = event.target.closest("button[data-target]"); // 📌 Pressed navigation button
+        const optionButton = event.target.closest("button[data-option-id]"); // Chosen option
+        const crumbButton = event.target.closest("button[data-edit-index]"); // Chosen breadcrumb
+        const actionButton = event.target.closest("button[data-action]"); // Summary action
 
-        if (!button || !root.contains(button)) {
+        if (optionButton) {
+          chooseOption(optionButton.dataset.optionId);
           return;
         }
 
-        const target = button.getAttribute("data-target"); // 📌 Destination screen
-        const choice = button.getAttribute("data-choice"); // 📌 Optional path label
-        showScreen(target, choice);
+        if (crumbButton) {
+          const editIndex = Number(crumbButton.dataset.editIndex); // Edited level index
+          // ❓ What does this expression do? Why do we need it?
+          // 👉 It keeps every answer before the clicked breadcrumb and removes that answer plus its descendants, just like navigating back to a parent folder.
+          path = path.slice(0, editIndex);
+          render();
+          return;
+        }
+
+        if (actionButton && actionButton.dataset.action === "edit-last") {
+          path.pop();
+          render();
+          return;
+        }
+
+        if (actionButton && actionButton.dataset.action === "restart") {
+          path = [];
+          render();
+        }
       });
+
+      backButton.addEventListener("click", function () {
+        path.pop();
+        render();
+      });
+
+      restartButton.addEventListener("click", function () {
+        path = [];
+        render();
+      });
+
+      render();
     })();
   </script>
-</div>
-
-<script id="codex-visualization-floating-ui-core" src="https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js"></script>
-<script id="codex-visualization-floating-ui-dom" src="https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js"></script>
-<script id="codex-visualization-lucide" async src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"></script>
-<script id="codex-visualization-tooltip">/* oxlint-disable typescript/no-unsafe-argument, typescript/no-unsafe-call, typescript/no-unsafe-return */
-// Runs inside the visualization sandbox, not the host webview.
-(() => {
-  if (window.FloatingUIDOM == null) {
-    return;
-  }
-  const { autoUpdate, computePosition, flip, offset, shift, size } =
-    window.FloatingUIDOM;
-  const tooltipPlacements = new Set(["top", "right", "bottom", "left"]);
-  const tooltipId = `codex-visualization-tooltip-${
-    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
-  }`;
-  const tooltipGap = 5;
-  const hoverDelay = 700;
-  const skipDelay = 300;
-  let activeTrigger = null;
-  let pendingTrigger = null;
-  let tooltip = null;
-  let openTimeout = null;
-  let autoUpdateCleanup = null;
-  let positionRequest = 0;
-  let skipDelayUntil = 0;
-
-  const getTrigger = (target) =>
-    target?.nodeType === Node.ELEMENT_NODE
-      ? target.closest("[data-tooltip]")
-      : null;
-  const containsTarget = (trigger, target) =>
-    target?.nodeType != null && trigger.contains(target);
-  const getContent = (trigger) =>
-    trigger.getAttribute("data-tooltip")?.trim() ?? "";
-  const getPlacement = (trigger) => {
-    const placement = trigger.getAttribute("data-tooltip-placement");
-    return tooltipPlacements.has(placement) ? placement : "top";
-  };
-  const getTooltip = () => {
-    if (tooltip == null) {
-      tooltip = document.createElement("div");
-      tooltip.id = tooltipId;
-      tooltip.className = "tooltip";
-      tooltip.setAttribute("role", "tooltip");
-    }
-    return tooltip;
-  };
-  const setDescribedBy = (trigger, described) => {
-    const ids = new Set(
-      (trigger.getAttribute("aria-describedby") ?? "")
-        .split(/\s+/)
-        .filter(Boolean),
-    );
-    if (described) {
-      ids.add(tooltipId);
-    } else {
-      ids.delete(tooltipId);
-    }
-    if (ids.size === 0) {
-      trigger.removeAttribute("aria-describedby");
-    } else {
-      trigger.setAttribute("aria-describedby", [...ids].join(" "));
-    }
-  };
-  const clearOpenTimeout = () => {
-    if (openTimeout != null) {
-      window.clearTimeout(openTimeout);
-      openTimeout = null;
-    }
-    pendingTrigger = null;
-  };
-  const closeTooltip = (activateSkipDelay = true) => {
-    clearOpenTimeout();
-    positionRequest += 1;
-    autoUpdateCleanup?.();
-    autoUpdateCleanup = null;
-    if (activeTrigger == null) {
-      return;
-    }
-    setDescribedBy(activeTrigger, false);
-    activeTrigger = null;
-    tooltip?.remove();
-    if (activateSkipDelay) {
-      skipDelayUntil = Date.now() + skipDelay;
-    }
-  };
-  const updatePosition = (trigger, floating) => {
-    const request = ++positionRequest;
-    void computePosition(trigger, floating, {
-      middleware: [
-        offset(tooltipGap),
-        flip({ padding: tooltipGap }),
-        shift({ padding: tooltipGap }),
-        size({
-          padding: tooltipGap,
-          apply({ availableHeight, availableWidth, elements }) {
-            elements.floating.style.setProperty(
-              "--tooltip-available-width",
-              `${Math.max(0, availableWidth)}px`,
-            );
-            elements.floating.style.setProperty(
-              "--tooltip-available-height",
-              `${Math.max(0, availableHeight)}px`,
-            );
-          },
-        }),
-      ],
-      placement: getPlacement(trigger),
-      strategy: "fixed",
-    })
-      .then(({ x, y }) => {
-        if (activeTrigger !== trigger || request !== positionRequest) {
-          return;
-        }
-        const scale = window.devicePixelRatio || 1;
-        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
-        floating.style.visibility = "visible";
-      })
-      .catch(() => {
-        if (activeTrigger === trigger && request === positionRequest) {
-          closeTooltip(false);
-        }
-      });
-  };
-  const openTooltip = (trigger) => {
-    const content = getContent(trigger);
-    if (!trigger.isConnected || content.length === 0) {
-      return;
-    }
-    clearOpenTimeout();
-    if (activeTrigger === trigger) {
-      return;
-    }
-    closeTooltip();
-    const floating = getTooltip();
-    floating.textContent = content;
-    floating.style.visibility = "hidden";
-    floating.style.transform = "translate(0, 0)";
-    document.body.appendChild(floating);
-    activeTrigger = trigger;
-    setDescribedBy(trigger, true);
-    autoUpdateCleanup = autoUpdate(trigger, floating, () => {
-      updatePosition(trigger, floating);
-    });
-  };
-  const requestOpen = (trigger, immediate = false) => {
-    if (
-      getContent(trigger).length === 0 ||
-      activeTrigger === trigger ||
-      pendingTrigger === trigger
-    ) {
-      return;
-    }
-    clearOpenTimeout();
-    pendingTrigger = trigger;
-    const delay =
-      immediate || activeTrigger != null || Date.now() < skipDelayUntil
-        ? 0
-        : hoverDelay;
-    if (delay === 0) {
-      openTooltip(trigger);
-      return;
-    }
-    openTimeout = window.setTimeout(() => {
-      openTimeout = null;
-      pendingTrigger = null;
-      openTooltip(trigger);
-    }, delay);
-  };
-  const handlePointerOpen = (event) => {
-    if (event.pointerType === "touch") {
-      return;
-    }
-    const trigger = getTrigger(event.target);
-    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
-      return;
-    }
-    requestOpen(trigger);
-  };
-  const handleLeave = (event) => {
-    const trigger = getTrigger(event.target);
-    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
-      return;
-    }
-    if (activeTrigger === trigger || pendingTrigger === trigger) {
-      closeTooltip();
-    }
-  };
-  const handleFocusIn = (event) => {
-    const trigger = getTrigger(event.target);
-    if (trigger?.matches(":focus-visible")) {
-      requestOpen(trigger, true);
-    }
-  };
-  const handleKeyDown = (event) => {
-    if (event.key === "Escape") {
-      closeTooltip();
-    }
-  };
-  const handleContextMenu = (event) => {
-    const trigger = getTrigger(event.target);
-    if (activeTrigger === trigger || pendingTrigger === trigger) {
-      closeTooltip();
-    }
-  };
-  const destroy = () => {
-    closeTooltip(false);
-    document.removeEventListener("pointerover", handlePointerOpen);
-    document.removeEventListener("pointerout", handleLeave);
-    document.removeEventListener("focusin", handleFocusIn);
-    document.removeEventListener("focusout", handleLeave);
-    document.removeEventListener("keydown", handleKeyDown);
-    document.removeEventListener("contextmenu", handleContextMenu);
-    tooltip = null;
-  };
-
-  document.addEventListener("pointerover", handlePointerOpen);
-  document.addEventListener("pointerout", handleLeave);
-  document.addEventListener("focusin", handleFocusIn);
-  document.addEventListener("focusout", handleLeave);
-  document.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("contextmenu", handleContextMenu);
-  window.addEventListener("pagehide", destroy, { once: true });
-})();
-</script>
-<script id="codex-visualization-lucide-initialization">(() => {
-  const initialize = () => {
-    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
-  };
-  if (globalThis.lucide != null) {
-    initialize();
-    return;
-  }
-  document
-    .getElementById("codex-visualization-lucide")
-    ?.addEventListener("load", initialize, { once: true });
-})();
-</script>
 </body>
 </html>
