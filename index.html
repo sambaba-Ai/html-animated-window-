@@ -121,7 +121,7 @@
       overflow: hidden;
       border: 1px solid rgb(68 57 46 / 9%);
       border-radius: var(--radius-xl);
-      background: var(--surface);
+      background: var(--forest);
       box-shadow: var(--shadow);
     }
 
@@ -149,7 +149,6 @@
       flex-direction: column;
       padding: 28px 32px 24px;
       overflow: hidden;
-      border-bottom: 1px solid rgb(255 255 255 / 9%);
       color: var(--white);
       background:
         radial-gradient(circle at 75% 8%, rgb(166 184 168 / 22%) 0 5rem, transparent 15rem),
@@ -394,12 +393,19 @@
 
     /* 📌 The buttons and editable selections live inside the same card body as the visual. */
     .question-panel {
+      position: relative;
+      z-index: 2;
       display: flex;
       min-height: 520px;
       min-width: 0;
       flex-direction: column;
+      margin-top: 18px;
       padding: 32px 38px 34px;
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 24px;
+      color: var(--ink);
       background: var(--surface);
+      box-shadow: 0 18px 45px rgb(0 0 0 / 18%);
     }
 
     .breadcrumb {
@@ -865,7 +871,7 @@
     </header>
 
     <section class="experience" aria-labelledby="question-title">
-      <aside class="visual-panel" aria-label="Your selected consultation path">
+      <div class="visual-panel" aria-label="Your selected consultation path">
         <span class="level-badge" id="level-badge">Question 1 of 5</span>
 
         <div class="visual-art" id="visual-art" data-category="start">
@@ -908,19 +914,19 @@
           <ol class="path-list" id="path-list"></ol>
           <code class="folder-path" id="folder-path">/start</code>
         </div>
-      </aside>
 
-      <section class="question-panel">
-        <nav class="breadcrumb" id="breadcrumb" aria-label="Editable selection breadcrumbs"></nav>
+        <section class="question-panel">
+          <nav class="breadcrumb" id="breadcrumb" aria-label="Editable selection breadcrumbs"></nav>
 
-        <div class="question-view" id="question-view" aria-live="polite"></div>
+          <div class="question-view" id="question-view" aria-live="polite"></div>
 
-        <footer class="panel-actions" id="panel-actions">
-          <button class="text-button" id="back-button" type="button" disabled>← Back</button>
-          <div class="progress-dots" id="progress-dots" aria-label="Question progress"></div>
-          <button class="text-button" id="restart-button" type="button">Start over</button>
-        </footer>
-      </section>
+          <footer class="panel-actions" id="panel-actions">
+            <button class="text-button" id="back-button" type="button" disabled>← Back</button>
+            <div class="progress-dots" id="progress-dots" aria-label="Question progress"></div>
+            <button class="text-button" id="restart-button" type="button">Start over</button>
+          </footer>
+        </section>
+      </div>
     </section>
 
     <p class="disclaimer">This demonstration organizes consultation interests. It does not diagnose a condition or recommend a medical treatment.</p>
